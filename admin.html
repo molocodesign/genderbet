@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Panel</title>
+<style>
+:root{
+  --bg:#06080c;--panel:#0d1219;--line:#1b2433;
+  --amber:#ffb020;--pink:#ff4d9d;--blue:#35a7ff;
+  --up:#38dc82;--down:#ff5d5d;--dim:#5d6b81;--txt:#e8eef7;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{background:var(--bg);color:var(--txt);min-height:100dvh;font-size:16px;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+  padding:16px 14px calc(28px + env(safe-area-inset-bottom))}
+.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-variant-numeric:tabular-nums}
+.wrap{max-width:520px;margin:0 auto}
+h1{font-size:19px;font-weight:800;letter-spacing:-.01em}
+.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;gap:10px}
+.out{background:none;border:1px solid var(--line);color:var(--dim);border-radius:6px;
+  padding:7px 12px;font-size:12px;cursor:pointer;font-family:inherit}
+.sec{margin-bottom:26px}
+.sec-t{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--dim);
+  margin-bottom:10px;display:flex;justify-content:space-between;align-items:center}
+.badge{background:var(--amber);color:#160f02;border-radius:99px;padding:2px 9px;font-size:11px;font-weight:700;letter-spacing:0}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px;margin-bottom:10px}
+.card.pend{border-color:rgba(255,176,32,.34)}
+.row{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:12px}
+.who{font-size:18px;font-weight:700}
+.when{font-size:12px;color:var(--dim);white-space:nowrap}
+.edit{display:grid;grid-template-columns:1fr auto;gap:8px;margin-bottom:10px}
+.edit input{background:#121924;border:1px solid var(--line);color:var(--txt);border-radius:7px;
+  padding:12px;font-size:16px;font-family:inherit;width:100%}
+.edit input:focus{outline:2px solid var(--amber);outline-offset:1px}
+.sw{display:flex;gap:6px}
+.sw button{flex:1;background:#121924;border:1px solid var(--line);color:var(--dim);border-radius:7px;
+  padding:12px 6px;font-size:14px;cursor:pointer;font-family:inherit;font-weight:600}
+.sw button.on.p{border-color:var(--pink);color:var(--pink);background:rgba(255,77,157,.12)}
+.sw button.on.b{border-color:var(--blue);color:var(--blue);background:rgba(53,167,255,.12)}
+.acts{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.ok{background:var(--up);color:#04240f;border:none;border-radius:8px;padding:15px;font-size:15px;
+  font-weight:700;cursor:pointer;font-family:inherit}
+.no{background:transparent;border:1px solid rgba(255,93,93,.45);color:var(--down);border-radius:8px;
+  padding:15px;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit}
+.mini{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px 14px;
+  background:var(--panel);border:1px solid var(--line);border-radius:8px;margin-bottom:7px}
+.mini .l{font-size:15px}
+.mini .l .tag{font-size:12px;color:var(--dim);margin-left:6px}
+.mini .r{display:flex;align-items:center;gap:12px}
+.mini .amt{font-weight:700}
+.del{background:none;border:none;color:var(--dim);font-size:19px;cursor:pointer;padding:0 4px;line-height:1}
+.empty{font-size:14px;color:var(--dim);padding:14px 0}
+.add{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px}
+.add input{background:#121924;border:1px solid var(--line);color:var(--txt);border-radius:7px;
+  padding:13px;font-size:16px;font-family:inherit;width:100%;margin-bottom:8px}
+.add .two{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.add .go{width:100%;background:var(--amber);color:#160f02;border:none;border-radius:8px;padding:15px;
+  font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;margin-top:2px}
+.danger{border-color:rgba(255,93,93,.3)}
+.rev-btns{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
+.rev-p{background:var(--pink);color:#3d0620;border:none;border-radius:8px;padding:17px;font-size:15px;
+  font-weight:800;cursor:pointer;font-family:inherit}
+.rev-b{background:var(--blue);color:#04203d;border:none;border-radius:8px;padding:17px;font-size:15px;
+  font-weight:800;cursor:pointer;font-family:inherit}
+.wide{width:100%;background:transparent;border:1px solid var(--line);color:var(--dim);border-radius:8px;
+  padding:13px;font-size:14px;cursor:pointer;font-family:inherit;margin-top:6px}
+.login{max-width:340px;margin:16vh auto 0}
+.login h1{margin-bottom:20px;text-align:center}
+.login input{width:100%;background:var(--panel);border:1px solid var(--line);color:var(--txt);
+  border-radius:8px;padding:15px;font-size:16px;font-family:inherit;margin-bottom:10px}
+.login button{width:100%;background:var(--amber);color:#160f02;border:none;border-radius:8px;
+  padding:16px;font-size:16px;font-weight:700;cursor:pointer;font-family:inherit}
+.msg{font-size:13px;color:#ffb4b4;margin-top:12px;text-align:center;min-height:1.2em}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:22px}
+.stat{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:12px 8px;text-align:center}
+.stat .v{font-size:20px;font-weight:800}
+.stat .k{font-size:10px;color:var(--dim);letter-spacing:.1em;text-transform:uppercase;margin-top:3px}
+.hidden{display:none!important}
+</style>
+</head>
+<body>
+
+<div class="login" id="login">
+  <h1>Panel</h1>
+  <input id="mail" type="email" placeholder="E-mail" autocomplete="username">
+  <input id="pass" type="password" placeholder="Hasło" autocomplete="current-password">
+  <button id="btn-login">Zaloguj</button>
+  <div class="msg" id="lmsg"></div>
+</div>
+
+<div class="wrap hidden" id="app">
+  <div class="top">
+    <h1>Panel</h1>
+    <button class="out" id="btn-out">Wyloguj</button>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><div class="v mono" id="s-pool">0</div><div class="k">Pula zł</div></div>
+    <div class="stat"><div class="v mono" style="color:var(--pink)" id="s-p">×—</div><div class="k">Dziewczynka</div></div>
+    <div class="stat"><div class="v mono" style="color:var(--blue)" id="s-b">×—</div><div class="k">Chłopiec</div></div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-t">Do zatwierdzenia <span class="badge hidden" id="cnt-pend">0</span></div>
+    <div id="pend"></div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-t">Dodaj ręcznie (gotówka)</div>
+    <div class="add">
+      <input id="a-name" placeholder="Imię" autocomplete="off">
+      <div class="two">
+        <input id="a-amt" type="number" inputmode="numeric" placeholder="Kwota" min="10">
+        <div class="sw" id="a-side">
+          <button type="button" class="p" data-side="p">♀</button>
+          <button type="button" class="b" data-side="b">♂</button>
+        </div>
+      </div>
+      <button class="go" id="a-go">Dodaj do puli</button>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-t">W puli <span id="cnt-ok"></span></div>
+    <div id="ok"></div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-t">Rozstrzygnięcie</div>
+    <div class="card danger">
+      <div class="rev-btns">
+        <button class="rev-p" id="rev-p">♀ Dziewczynka</button>
+        <button class="rev-b" id="rev-b">♂ Chłopiec</button>
+      </div>
+      <button class="wide" id="rev-close">Zamknij zakłady (bez wyniku)</button>
+      <button class="wide" id="rev-reset">Cofnij / otwórz z powrotem</button>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged }
+  from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
+import { getDatabase, ref, onValue, push, update, remove, set }
+  from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
+import { firebaseConfig, STRONY, MIN_KWOTA, fmt } from "./config.js";
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getDatabase(app);
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[<>&"]/g, c => ({"<":"&lt;",">":"&gt;","&":"&amp;",'"':"&quot;"}[c]));
+
+// ── logowanie ───────────────────────────────────────────
+$("btn-login").onclick = async () => {
+  $("lmsg").textContent = "";
+  try { await signInWithEmailAndPassword(auth, $("mail").value.trim(), $("pass").value); }
+  catch(e){ $("lmsg").textContent = "Nie udało się zalogować: " + e.code; }
+};
+$("pass").onkeydown = e => { if (e.key === "Enter") $("btn-login").click(); };
+$("btn-out").onclick = () => signOut(auth);
+
+onAuthStateChanged(auth, user => {
+  $("login").classList.toggle("hidden", !!user);
+  $("app").classList.toggle("hidden", !user);
+  if (user) start();
+});
+
+// ── dane ────────────────────────────────────────────────
+let started = false, bets = {};
+function start(){
+  if (started) return; started = true;
+  onValue(ref(db, "bets"), s => { bets = s.val() || {}; render(); });
+}
+
+function timeStr(ts){
+  const d = new Date(ts);
+  return d.getHours().toString().padStart(2,"0") + ":" + d.getMinutes().toString().padStart(2,"0");
+}
+
+function render(){
+  const list = Object.entries(bets).map(([id,b]) => ({id, ...b}));
+  const pend = list.filter(b => b.status === "pending").sort((a,b) => b.ts - a.ts);
+  const ok   = list.filter(b => b.status === "approved").sort((a,b) => b.ts - a.ts);
+
+  const sum = {p:0,b:0};
+  ok.forEach(b => sum[b.side] += b.amount);
+  const total = sum.p + sum.b;
+  $("s-pool").textContent = fmt(total);
+  $("s-p").textContent = sum.p > 0 ? "×"+(total/sum.p).toFixed(2) : "×—";
+  $("s-b").textContent = sum.b > 0 ? "×"+(total/sum.b).toFixed(2) : "×—";
+
+  const badge = $("cnt-pend");
+  badge.textContent = pend.length;
+  badge.classList.toggle("hidden", pend.length === 0);
+
+  // oczekujące
+  const box = $("pend");
+  box.innerHTML = pend.length ? "" : '<div class="empty">Brak zgłoszeń.</div>';
+  pend.forEach(b => {
+    const el = document.createElement("div");
+    el.className = "card pend";
+    el.innerHTML = `
+      <div class="row"><div class="who">${esc(b.name)}</div><div class="when">${timeStr(b.ts)}</div></div>
+      <div class="edit">
+        <input value="${esc(b.name)}" data-f="name">
+        <input type="number" inputmode="numeric" value="${b.amount}" data-f="amt" style="width:110px">
+      </div>
+      <div class="sw">
+        <button type="button" class="p ${b.side==='p'?'on':''}" data-side="p">♀ Dziewczynka</button>
+        <button type="button" class="b ${b.side==='b'?'on':''}" data-side="b">♂ Chłopiec</button>
+      </div>
+      <div class="acts">
+        <button class="ok">Zatwierdź</button>
+        <button class="no">Odrzuć</button>
+      </div>`;
+    let side = b.side;
+    el.querySelectorAll(".sw button").forEach(btn => {
+      btn.onclick = () => {
+        el.querySelectorAll(".sw button").forEach(x => x.classList.remove("on"));
+        btn.classList.add("on"); side = btn.dataset.side;
+      };
+    });
+    el.querySelector(".ok").onclick = () => {
+      const name = el.querySelector('[data-f="name"]').value.trim() || b.name;
+      const amt = parseInt(el.querySelector('[data-f="amt"]').value, 10);
+      if (!amt || amt < MIN_KWOTA) { alert("Kwota min. " + MIN_KWOTA + " zł"); return; }
+      update(ref(db, "bets/"+b.id), { name, amount: amt, side, status: "approved" });
+    };
+    el.querySelector(".no").onclick = () => {
+      if (confirm("Odrzucić zgłoszenie od " + b.name + "?")) remove(ref(db, "bets/"+b.id));
+    };
+    box.appendChild(el);
+  });
+
+  // zatwierdzone
+  $("cnt-ok").textContent = ok.length ? ok.length : "";
+  const okBox = $("ok");
+  okBox.innerHTML = ok.length ? "" : '<div class="empty">Pusto.</div>';
+  ok.forEach(b => {
+    const el = document.createElement("div");
+    el.className = "mini";
+    el.innerHTML = `
+      <div class="l">${esc(b.name)}<span class="tag">${STRONY[b.side].icon} ${STRONY[b.side].label}</span></div>
+      <div class="r"><span class="amt mono">${fmt(b.amount)} zł</span><button class="del">×</button></div>`;
+    el.querySelector(".del").onclick = () => {
+      if (confirm("Usunąć zakład: " + b.name + "?")) remove(ref(db, "bets/"+b.id));
+    };
+    okBox.appendChild(el);
+  });
+}
+
+// ── ręczne dodawanie ────────────────────────────────────
+let mSide = null;
+document.querySelectorAll("#a-side button").forEach(b => {
+  b.onclick = () => {
+    document.querySelectorAll("#a-side button").forEach(x => x.classList.remove("on"));
+    b.classList.add("on"); mSide = b.dataset.side;
+  };
+});
+$("a-go").onclick = async () => {
+  const name = $("a-name").value.trim();
+  const amt = parseInt($("a-amt").value, 10);
+  if (!name) return alert("Podaj imię");
+  if (!mSide) return alert("Wybierz stronę");
+  if (!amt || amt < MIN_KWOTA) return alert("Kwota min. " + MIN_KWOTA + " zł");
+  await push(ref(db, "bets"), { name, side: mSide, amount: amt, status: "approved", ts: Date.now() });
+  $("a-name").value = ""; $("a-amt").value = "";
+  document.querySelectorAll("#a-side button").forEach(x => x.classList.remove("on"));
+  mSide = null;
+};
+
+// ── rozstrzygnięcie ─────────────────────────────────────
+$("rev-p").onclick = () => { if (confirm("Ogłosić DZIEWCZYNKĘ?")) set(ref(db,"reveal"), {closed:true, winner:"p"}); };
+$("rev-b").onclick = () => { if (confirm("Ogłosić CHŁOPCA?")) set(ref(db,"reveal"), {closed:true, winner:"b"}); };
+$("rev-close").onclick = () => set(ref(db,"reveal"), {closed:true, winner:null});
+$("rev-reset").onclick = () => set(ref(db,"reveal"), null);
+</script>
+</body>
+</html>

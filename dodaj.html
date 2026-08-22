@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Postaw zakład</title>
+<style>
+:root{
+  --bg:#06080c;--panel:#0d1219;--line:#1b2433;
+  --amber:#ffb020;--pink:#ff4d9d;--blue:#35a7ff;
+  --up:#38dc82;--dim:#5d6b81;--txt:#e8eef7;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{background:var(--bg);color:var(--txt);min-height:100dvh;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+  padding:20px 16px calc(24px + env(safe-area-inset-bottom));font-size:16px}
+.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-variant-numeric:tabular-nums}
+.wrap{max-width:460px;margin:0 auto}
+header{text-align:center;margin-bottom:26px}
+.brand{font-size:10px;letter-spacing:.32em;color:var(--dim);text-transform:uppercase;margin-bottom:8px}
+h1{font-size:26px;font-weight:800;letter-spacing:-.02em}
+.step{margin-bottom:24px}
+.lab{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--dim);margin-bottom:10px}
+.opts{display:flex;flex-direction:column;gap:8px}
+.opt{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:15px 16px;
+  font-size:17px;color:var(--txt);text-align:left;cursor:pointer;transition:.15s;font-family:inherit;width:100%}
+.opt:active{transform:scale(.985)}
+.opt.sel{border-color:var(--amber);background:rgba(255,176,32,.09);color:var(--amber);font-weight:600}
+.sides{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.side-btn{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:20px 10px;
+  cursor:pointer;font-family:inherit;color:var(--txt);transition:.15s;text-align:center}
+.side-btn .ic{font-size:30px;display:block;margin-bottom:6px}
+.side-btn .nm{font-size:13px;letter-spacing:.12em;text-transform:uppercase}
+.side-btn:active{transform:scale(.98)}
+.side-btn.sel.p{border-color:var(--pink);background:rgba(255,77,157,.12);color:var(--pink)}
+.side-btn.sel.b{border-color:var(--blue);background:rgba(53,167,255,.12);color:var(--blue)}
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chip{flex:1;min-width:82px;background:var(--panel);border:1px solid var(--line);border-radius:8px;
+  padding:15px 8px;font-size:17px;font-weight:600;cursor:pointer;font-family:inherit;color:var(--txt);transition:.15s}
+.chip:active{transform:scale(.97)}
+.chip.sel{border-color:var(--amber);background:rgba(255,176,32,.09);color:var(--amber)}
+input{width:100%;background:var(--panel);border:1px solid var(--line);color:var(--txt);border-radius:8px;
+  padding:15px 16px;font-size:17px;font-family:inherit;margin-top:8px}
+input:focus{outline:2px solid var(--amber);outline-offset:1px}
+.hint{font-size:12px;color:var(--dim);margin-top:8px;line-height:1.5}
+.go{width:100%;background:var(--amber);color:#160f02;border:none;border-radius:10px;padding:18px;
+  font-size:17px;font-weight:700;letter-spacing:.04em;cursor:pointer;font-family:inherit;margin-top:6px}
+.go:disabled{opacity:.32;cursor:not-allowed}
+.go:active:not(:disabled){transform:scale(.99)}
+.msg{font-size:13px;color:#ffb4b4;margin-top:12px;min-height:1.2em;text-align:center}
+/* ekran potwierdzenia */
+.done{display:none;text-align:center;padding-top:14px}
+.done.on{display:block}
+.tick{width:64px;height:64px;border-radius:50%;background:rgba(56,220,130,.12);
+  border:2px solid var(--up);color:var(--up);font-size:32px;line-height:60px;margin:0 auto 20px}
+.done h2{font-size:23px;font-weight:800;margin-bottom:12px}
+.recap{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:18px;margin:20px 0;
+  font-size:16px;line-height:1.9}
+.recap b{font-weight:700}
+.pay{display:block;background:var(--amber);color:#160f02;border-radius:10px;padding:18px;
+  font-size:17px;font-weight:700;text-decoration:none;margin-bottom:12px}
+.note{font-size:13px;color:var(--dim);line-height:1.6}
+.again{background:none;border:none;color:var(--dim);font-size:14px;text-decoration:underline;
+  cursor:pointer;margin-top:22px;font-family:inherit}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brand">Totalizator · Gender Reveal</div>
+    <h1>Postaw zakład</h1>
+  </header>
+
+  <form id="form">
+    <div class="step">
+      <div class="lab">Kim jesteś?</div>
+      <div class="opts" id="people"></div>
+      <input id="other" placeholder="Wpisz swoje imię" style="display:none">
+    </div>
+
+    <div class="step">
+      <div class="lab">Na kogo stawiasz?</div>
+      <div class="sides">
+        <button type="button" class="side-btn p" data-side="p"><span class="ic">♀</span><span class="nm">Dziewczynka</span></button>
+        <button type="button" class="side-btn b" data-side="b"><span class="ic">♂</span><span class="nm">Chłopiec</span></button>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="lab">Ile stawiasz?</div>
+      <div class="chips" id="chips"></div>
+      <input id="custom" type="number" inputmode="numeric" placeholder="Inna kwota" min="10">
+      <div class="hint">Minimum 10 zł. Wygrana dzielona proporcjonalnie do wpłaty.</div>
+    </div>
+
+    <button class="go" id="submit" disabled>Zgłoś zakład</button>
+    <div class="msg" id="msg"></div>
+  </form>
+
+  <div class="done" id="done">
+    <div class="tick">✓</div>
+    <h2>Zgłoszone!</h2>
+    <div class="recap" id="recap"></div>
+    <a class="pay" id="pay" href="#" target="_blank" rel="noopener">Zapłać przez Revolut →</a>
+    <div class="note">Zakład wejdzie do puli, gdy Michał potwierdzi wpłatę.<br>Możesz też zapłacić gotówką na miejscu.</div>
+    <button class="again" id="again">Postaw kolejny zakład</button>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
+import { getDatabase, ref, push } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
+import { firebaseConfig, GOSCIE, KWOTY, MIN_KWOTA, REVOLUT, STRONY, fmt } from "./config.js";
+
+const db = getDatabase(initializeApp(firebaseConfig));
+const $ = id => document.getElementById(id);
+
+let person = null, side = null, amount = null;
+
+// lista osób
+const peopleBox = $("people");
+[...GOSCIE, "Mnie tu nie ma"].forEach(name => {
+  const b = document.createElement("button");
+  b.type = "button"; b.className = "opt"; b.textContent = name;
+  b.onclick = () => {
+    [...peopleBox.children].forEach(c => c.classList.remove("sel"));
+    b.classList.add("sel");
+    if (name === "Mnie tu nie ma"){
+      $("other").style.display = "block"; $("other").focus(); person = null;
+    } else {
+      $("other").style.display = "none"; $("other").value = ""; person = name;
+    }
+    check();
+  };
+  peopleBox.appendChild(b);
+});
+$("other").oninput = () => { person = $("other").value.trim() || null; check(); };
+
+// strony
+document.querySelectorAll(".side-btn").forEach(b => {
+  b.onclick = () => {
+    document.querySelectorAll(".side-btn").forEach(x => x.classList.remove("sel"));
+    b.classList.add("sel"); side = b.dataset.side; check();
+  };
+});
+
+// kwoty
+const chips = $("chips");
+KWOTY.forEach(k => {
+  const b = document.createElement("button");
+  b.type = "button"; b.className = "chip"; b.textContent = k + " zł";
+  b.onclick = () => {
+    [...chips.children].forEach(c => c.classList.remove("sel"));
+    b.classList.add("sel"); $("custom").value = ""; amount = k; check();
+  };
+  chips.appendChild(b);
+});
+$("custom").oninput = () => {
+  [...chips.children].forEach(c => c.classList.remove("sel"));
+  const v = parseInt($("custom").value, 10);
+  amount = (v && v >= MIN_KWOTA) ? v : null;
+  check();
+};
+
+function check(){ $("submit").disabled = !(person && side && amount); }
+
+$("form").onsubmit = async e => {
+  e.preventDefault();
+  if (!(person && side && amount)) return;
+  $("submit").disabled = true;
+  $("msg").textContent = "";
+  try {
+    await push(ref(db, "bets"), {
+      name: person.slice(0, 40),
+      side, amount,
+      status: "pending",
+      ts: Date.now()
+    });
+    $("recap").innerHTML =
+      `<b>${person}</b><br>${STRONY[side].icon} ${STRONY[side].label}<br><b>${fmt(amount)} zł</b>`;
+    $("pay").href = REVOLUT;
+    $("form").style.display = "none";
+    $("done").classList.add("on");
+    window.scrollTo(0,0);
+  } catch(err){
+    $("msg").textContent = "Nie udało się wysłać: " + err.message;
+    $("submit").disabled = false;
+  }
+};
+
+$("again").onclick = () => location.reload();
+</script>
+</body>
+</html>

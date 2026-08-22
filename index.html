@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Totalizator</title>
+<style>
+:root{
+  --bg:#06080c;--panel:#0d1219;--line:#1b2433;
+  --amber:#ffb020;--amber-dim:#8a5f14;
+  --pink:#ff4d9d;--blue:#35a7ff;
+  --up:#38dc82;--down:#ff5d5d;--dim:#5d6b81;--txt:#e8eef7;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{background:var(--bg);color:var(--txt);min-height:100vh;display:flex;flex-direction:column;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;overflow:hidden}
+.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-variant-numeric:tabular-nums}
+.board{flex:1;padding:clamp(14px,2.6vw,34px);display:flex;flex-direction:column;position:relative;overflow:hidden}
+.board::before{content:"";position:absolute;inset:0;pointer-events:none;
+  background:repeating-linear-gradient(0deg,rgba(255,255,255,.02) 0 1px,transparent 1px 3px)}
+.top{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.brand{font-size:clamp(9px,1.1vw,13px);letter-spacing:.32em;color:var(--dim);text-transform:uppercase}
+.tags{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.status{font-size:clamp(9px,1.1vw,13px);letter-spacing:.2em;text-transform:uppercase;padding:5px 13px;
+  border-radius:2px;border:1px solid rgba(56,220,130,.4);color:var(--up);background:rgba(56,220,130,.07)}
+.status.closed{border-color:rgba(255,93,93,.45);color:var(--down);background:rgba(255,93,93,.08);animation:none}
+.pending{font-size:clamp(9px,1.1vw,13px);letter-spacing:.14em;padding:5px 13px;border-radius:2px;
+  border:1px solid var(--line);color:var(--dim);display:none}
+.pending.on{display:block}
+.blink{animation:blink 1.8s steps(1,end) infinite}
+@keyframes blink{0%,62%{opacity:1}63%,100%{opacity:.22}}
+.pool{text-align:center;padding:clamp(14px,3.4vh,40px) 0 clamp(10px,2.4vh,28px)}
+.pool-lab{font-size:clamp(9px,1vw,12px);letter-spacing:.4em;color:var(--dim);margin-bottom:9px}
+.pool-val{font-size:clamp(50px,11vw,142px);font-weight:800;line-height:.9;color:var(--amber);
+  letter-spacing:-.02em;text-shadow:0 0 40px rgba(255,176,32,.32)}
+.pool-val .zl{font-size:.3em;color:var(--amber-dim);margin-left:.12em}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:clamp(9px,1.5vw,20px);flex:1;min-height:0}
+.side{background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:clamp(12px,2.2vw,28px);
+  display:flex;flex-direction:column;justify-content:center;position:relative;overflow:hidden}
+.side::after{content:"";position:absolute;top:0;left:0;right:0;height:2px}
+.side.p::after{background:var(--pink);box-shadow:0 0 18px var(--pink)}
+.side.b::after{background:var(--blue);box-shadow:0 0 18px var(--blue)}
+.side-name{font-size:clamp(11px,1.5vw,19px);letter-spacing:.22em;text-transform:uppercase;
+  margin-bottom:.5em;font-weight:600}
+.p .side-name{color:var(--pink)}.b .side-name{color:var(--blue)}
+.odds{font-size:clamp(38px,7.8vw,100px);font-weight:800;line-height:1;letter-spacing:-.03em;
+  transition:color .25s,text-shadow .25s}
+.p .odds{color:var(--pink);text-shadow:0 0 30px rgba(255,77,157,.32)}
+.b .odds{color:var(--blue);text-shadow:0 0 30px rgba(53,167,255,.32)}
+.odds.up{color:var(--up)!important;text-shadow:0 0 34px rgba(56,220,130,.55)!important}
+.odds.down{color:var(--down)!important;text-shadow:0 0 34px rgba(255,93,93,.55)!important}
+.per10{font-size:clamp(11px,1.4vw,18px);color:#94a5bc;margin-top:.7em}
+.per10 b{color:var(--txt);font-weight:600}
+.meta{font-size:clamp(9px,1.05vw,13px);color:var(--dim);margin-top:.45em;letter-spacing:.05em}
+.bar{height:6px;display:flex;margin:clamp(12px,2.2vh,24px) 0 8px;background:#0a0e14;
+  border:1px solid var(--line);border-radius:2px;overflow:hidden}
+.bar>div{transition:width .8s cubic-bezier(.4,0,.2,1)}
+.bar .bp{background:linear-gradient(90deg,#c2185b,#ff4d9d)}
+.bar .bb{background:linear-gradient(90deg,#35a7ff,#1565c0)}
+.pct{display:flex;justify-content:space-between;font-size:clamp(9px,1.05vw,13px);color:var(--dim);letter-spacing:.14em}
+.ticker{margin-top:clamp(10px,1.8vh,20px);border-top:1px solid var(--line);padding-top:11px;
+  font-size:clamp(10px,1.25vw,16px);color:var(--dim);min-height:1.6em;letter-spacing:.04em}
+.ticker b{color:#a9bad2;font-weight:600}
+.ticker.in{animation:slide .45s ease}
+@keyframes slide{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.reveal{position:fixed;inset:0;z-index:10;display:none;flex-direction:column;align-items:center;
+  justify-content:center;text-align:center;padding:24px}
+.reveal.on{display:flex;animation:flood 1.1s cubic-bezier(.2,.8,.2,1)}
+@keyframes flood{from{opacity:0;transform:scale(1.06)}to{opacity:1;transform:none}}
+.rev-lab{font-size:clamp(10px,1.4vw,15px);letter-spacing:.4em;opacity:.72;margin-bottom:.9em}
+.rev-name{font-size:clamp(40px,10.5vw,136px);font-weight:800;line-height:.92;letter-spacing:-.03em;margin-bottom:.35em}
+.rev-odds{font-size:clamp(13px,1.8vw,22px);line-height:1.9;opacity:.95}
+.rev-odds b{font-size:1.7em;font-weight:800}
+.rev-note{font-size:clamp(10px,1.25vw,15px);opacity:.75;margin-top:.6em}
+.err{position:fixed;bottom:0;left:0;right:0;background:#3a1010;color:#ffb4b4;padding:10px 16px;
+  font-size:13px;display:none;z-index:20}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+@media (max-width:600px){
+  body{overflow:auto}
+  .grid{grid-template-columns:1fr;gap:9px}
+  .side{padding:16px}
+  .odds{font-size:44px}
+  .pool-val{font-size:60px}
+}
+</style>
+</head>
+<body>
+<main class="board">
+  <div class="top">
+    <div class="brand">Totalizator · Gender Reveal</div>
+    <div class="tags">
+      <div class="pending" id="pending">0 czeka na potwierdzenie</div>
+      <div class="status blink" id="status">● Zakłady otwarte</div>
+    </div>
+  </div>
+  <div class="pool">
+    <div class="pool-lab">Total Pool</div>
+    <div class="pool-val mono"><span id="pool">0</span><span class="zl">zł</span></div>
+  </div>
+  <div class="grid">
+    <section class="side p">
+      <div class="side-name">♀ Dziewczynka</div>
+      <div class="odds mono" id="odds-p">×—</div>
+      <div class="per10">za każde 10 zł → <b class="mono" id="ten-p">—</b></div>
+      <div class="meta"><span id="cnt-p">0</span> zakładów · <span class="mono" id="sum-p">0</span> zł w puli</div>
+    </section>
+    <section class="side b">
+      <div class="side-name">♂ Chłopiec</div>
+      <div class="odds mono" id="odds-b">×—</div>
+      <div class="per10">za każde 10 zł → <b class="mono" id="ten-b">—</b></div>
+      <div class="meta"><span id="cnt-b">0</span> zakładów · <span class="mono" id="sum-b">0</span> zł w puli</div>
+    </section>
+  </div>
+  <div class="bar"><div class="bp" id="bar-p" style="width:50%"></div><div class="bb" id="bar-b" style="width:50%"></div></div>
+  <div class="pct"><span id="pct-p">—</span><span id="pct-b">—</span></div>
+  <div class="ticker" id="ticker">Czekamy na pierwszy zakład.</div>
+</main>
+
+<div class="reveal" id="reveal">
+  <div class="rev-lab">Wynik</div>
+  <div class="rev-name" id="rev-name"></div>
+  <div class="rev-odds" id="rev-odds"></div>
+  <div class="rev-note" id="rev-note"></div>
+</div>
+
+<div class="err" id="err"></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
+import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
+import { firebaseConfig, fmt } from "./config.js";
+
+const db = getDatabase(initializeApp(firebaseConfig));
+const $ = id => document.getElementById(id);
+
+let prevOdds = { p: 0, b: 0 };
+let lastSeen = null;
+let bets = {};
+let revealState = null;
+
+function flash(el, dir){
+  el.classList.remove("up","down"); void el.offsetWidth;
+  el.classList.add(dir); setTimeout(()=>el.classList.remove(dir), 750);
+}
+
+function render(){
+  const list = Object.entries(bets).map(([id,b]) => ({id, ...b}));
+  const ok = list.filter(b => b.status === "approved");
+  const pending = list.filter(b => b.status === "pending").length;
+
+  const sum = { p:0, b:0 }, cnt = { p:0, b:0 };
+  ok.forEach(b => { sum[b.side] += b.amount; cnt[b.side]++; });
+  const total = sum.p + sum.b;
+
+  $("pool").textContent = fmt(total);
+  ["p","b"].forEach(s => {
+    const o = sum[s] > 0 ? total / sum[s] : 0;
+    const el = $("odds-"+s);
+    el.textContent = o > 0 ? "×"+o.toFixed(2) : "×—";
+    if (prevOdds[s] > 0 && Math.abs(o - prevOdds[s]) > 0.004) flash(el, o > prevOdds[s] ? "up" : "down");
+    prevOdds[s] = o;
+    $("ten-"+s).textContent = o > 0 ? fmt(o*10)+" zł" : "—";
+    $("sum-"+s).textContent = fmt(sum[s]);
+    $("cnt-"+s).textContent = cnt[s];
+  });
+
+  const pp = total > 0 ? sum.p/total*100 : 50;
+  $("bar-p").style.width = pp+"%";
+  $("bar-b").style.width = (100-pp)+"%";
+  $("pct-p").textContent = total > 0 ? Math.round(pp)+"%" : "—";
+  $("pct-b").textContent = total > 0 ? Math.round(100-pp)+"%" : "—";
+
+  const pEl = $("pending");
+  pEl.textContent = pending + (pending === 1 ? " czeka na potwierdzenie" : " czeka na potwierdzenie");
+  pEl.classList.toggle("on", pending > 0);
+
+  // ticker — najnowszy zatwierdzony
+  const newest = ok.sort((a,b)=>b.ts-a.ts)[0];
+  if (newest && newest.id !== lastSeen){
+    if (lastSeen !== null){
+      const t = $("ticker");
+      t.innerHTML = `<b>${esc(newest.name)}</b> stawia <b>${fmt(newest.amount)} zł</b> na ` +
+        (newest.side === "p" ? "♀ dziewczynkę" : "♂ chłopca");
+      t.classList.remove("in"); void t.offsetWidth; t.classList.add("in");
+    }
+    lastSeen = newest.id;
+  }
+
+  applyReveal(total, sum);
+}
+
+function esc(s){ return String(s).replace(/[<>&]/g, c => ({"<":"&lt;",">":"&gt;","&":"&amp;"}[c])); }
+
+function applyReveal(total, sum){
+  const st = $("status");
+  const open = !revealState || !revealState.closed;
+  st.textContent = open ? "● Zakłady otwarte" : "● Zakłady zamknięte";
+  st.classList.toggle("closed", !open);
+  st.classList.toggle("blink", open);
+
+  const rv = $("reveal");
+  if (revealState && revealState.winner){
+    const w = revealState.winner;
+    const o = sum[w] > 0 ? total/sum[w] : 0;
+    rv.style.background = w === "p"
+      ? "radial-gradient(circle at 50% 38%,#ff74b3 0%,#c2185b 55%,#7a0f38 100%)"
+      : "radial-gradient(circle at 50% 38%,#5cb8ff 0%,#1565c0 55%,#0b3d78 100%)";
+    $("rev-name").textContent = w === "p" ? "♀ DZIEWCZYNKA" : "♂ CHŁOPIEC";
+    $("rev-odds").innerHTML = o > 0
+      ? `Kurs <b>×${o.toFixed(2)}</b><br>za każde 10 zł → <b>${fmt(o*10)} zł</b>`
+      : "Nikt nie trafił.";
+    $("rev-note").textContent = `Pula ${fmt(total)} zł dzielona proporcjonalnie do wpłat.`;
+    rv.classList.add("on");
+  } else {
+    rv.classList.remove("on");
+  }
+}
+
+onValue(ref(db, "bets"), snap => { bets = snap.val() || {}; render(); },
+  e => { $("err").style.display = "block"; $("err").textContent = "Błąd bazy: " + e.message; });
+
+onValue(ref(db, "reveal"), snap => { revealState = snap.val(); render(); });
+</script>
+</body>
+</html>

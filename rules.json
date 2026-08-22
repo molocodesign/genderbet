@@ -1,0 +1,25 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+
+    "bets": {
+      ".read": true,
+      "$id": {
+        ".write": "(!data.exists() && auth === null && newData.child('status').val() === 'pending') || auth !== null",
+        ".validate": "newData.hasChildren(['name','side','amount','status','ts'])",
+        "name":   { ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 40" },
+        "side":   { ".validate": "newData.val() === 'p' || newData.val() === 'b'" },
+        "amount": { ".validate": "newData.isNumber() && newData.val() >= 10 && newData.val() <= 100000" },
+        "status": { ".validate": "newData.val() === 'pending' || newData.val() === 'approved'" },
+        "ts":     { ".validate": "newData.isNumber()" },
+        "$other": { ".validate": false }
+      }
+    },
+
+    "reveal": {
+      ".read": true,
+      ".write": "auth !== null"
+    }
+  }
+}
