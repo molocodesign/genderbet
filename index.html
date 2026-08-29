@@ -6,7 +6,7 @@
 <title>Totalizator · Gender Reveal</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=Inter:opsz,wght@14..32,100..900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=Saira:ital,wdth,wght@1,75..125,100..900&display=swap" rel="stylesheet">
 <style>
 /* ═══════════════════════════════════════════════════════════════
    TABLICA NA TV — czytana z czterech metrów.
@@ -55,24 +55,25 @@
   --r-pill:999px;
 
   /* Typografia stoi na dwóch rolach i pięciu stopniach — nic poza tym.
-     ETYKIETA: Inter, wersaliki, rozstrzelona. Nie ma osi szerokości, więc
-               rytm buduje sam tracking. Waga idzie przez font-weight,
-               nie przez font-variation-settings — inaczej przepada
-               automatyczne dopasowanie osi opsz.
-     LICZBA:   Archivo, wdth 112, waga 900, ujemny tracking, tabularna.
-     Podział jest ostry: font-num wchodzi wyłącznie tam, gdzie stoi liczba
-     do odczytania z czterech metrów — pula, kurs, procenty, werdykt. */
-  --font-label:"Inter";
+     ETYKIETA: Archivo, wersaliki, waga 600, bez rozstrzelenia.
+     LICZBA:   Archivo wdth 112 waga 900 (pula, procenty, werdykt),
+               kurs osobno w pochyłej Sairze.
+     Tokeny --ls-* stoją na zerze, ale zostają — tracking wraca zmianą
+     jednej wartości, bez ruszania kilkunastu reguł. */
+  --font-label:"Archivo";
   --font-num:"Archivo";
+  --font-odds:"Saira";   /* tylko kursy — pochylone, wąskie, średnia waga */
   --t-micro:clamp(12px,1.25vw,25px);    /* etykiety, podpisy            */
   --t-small:clamp(15px,1.6vw,32px);     /* etykiety główne              */
   --t-mid:clamp(22px,2.4vw,48px);       /* liczby drugorzędne           */
   --t-large:clamp(34px,3.6vw,72px);     /* liczby wyróżnione            */
-  --t-hero:clamp(48px,7.35vw,144px);    /* kurs i pula — jeden stopień  */
+  --t-hero:clamp(48px,7.35vw,144px);    /* pula                         */
+  --t-odds:calc(var(--t-hero) * 1.5);   /* kurs — wąska Saira potrzebuje
+                                           więcej stopnia niż licznik    */
 
   --w-num:112;
-  --ls-label:.22em;
-  --ls-wide:.34em;                      /* tylko nagłówki sekcji        */
+  --ls-label:0em;
+  --ls-wide:0em;
   --ls-num:-.03em;
 
   --rule:clamp(2px,.16vw,3px);          /* linia działowa — z 4 m 1 px nie istnieje */
@@ -133,7 +134,7 @@ body::after{
   border-radius:var(--r-pill);
   line-height:1.05;
   /* Wyśrodkowanie pionowe po line-boxie zależy od metryk konkretnego kroju:
-     przy Inter wypada niemal równo, przy poprzednim kroju tekst siedział
+     przy jednym kroju wypada niemal równo, przy innym tekst siedzi
      wyraźnie za wysoko. text-box obcina line-box do wysokości wersalików,
      więc środek liczy się z glifów i zmiana fontu tego nie ruszy. */
   text-box:trim-both cap alphabetic;
@@ -249,9 +250,20 @@ body::after{
 .quote{display:flex;align-items:baseline;justify-content:center;
   gap:clamp(8px,.9vw,18px);flex-wrap:wrap}
 .odds{
-  font-family:var(--font-num);font-variation-settings:"wdth" var(--w-num),"wght" 900;
-  font-size:var(--t-hero);line-height:1;letter-spacing:var(--ls-num);
-  font-feature-settings:"tnum" 1;
+  font-family:var(--font-odds);font-style:italic;
+  font-variation-settings:"wdth" 80,"wght" 500;
+  --odds-track:.05em;
+  font-size:var(--t-odds);line-height:1;letter-spacing:var(--odds-track);
+  /* Dwie korekty w jednym paddingu:
+     .12em zapasu na nawis pochylonych glifów — gradient jest przycinany do boxa
+     i bez tego ostatnia cyfra traciłaby prawą krawędź;
+     plus tracking doliczony z lewej, bo letter-spacing zostawia puste miejsce
+     również po ostatnim znaku i kurs uciekałby optycznie w lewo. */
+  padding:0 .12em 0 calc(.12em + var(--odds-track));
+  /* Bez cyfr tabularnych: w Sairze tabularna jedynka dostaje podstawkę, żeby
+     wypełnić szerszą ramkę, i odstaje od kształtu z rysunku kroju. Kurs ma
+     zawsze format ×N.NN, więc stała szerokość cyfr niewiele tu daje. */
+  font-feature-settings:"tnum" 0;
   -webkit-background-clip:text;background-clip:text;
   color:transparent;-webkit-text-fill-color:transparent;
 }
@@ -298,21 +310,7 @@ body::after{
   display:flex;flex-direction:column;align-items:center;justify-content:center;
   gap:clamp(8px,.85vw,17px);text-align:center;
 }
-.entry .chip{flex:none;margin-bottom:clamp(2px,.3vw,6px)}
-.entry .cap{
-  font-weight:600;
-  font-size:var(--t-micro);letter-spacing:var(--ls-label);text-transform:uppercase;
-  color:var(--paper);line-height:1.5;
-}
-.qr-frame{background:#F1EDF7;border-radius:clamp(8px,.8vw,16px);padding:clamp(7px,.7vw,14px);
-  width:100%;max-width:clamp(140px,14vw,280px)}
-.qr-frame svg{display:block;width:100%;height:auto}
-.entry .min{
-  font-weight:600;
-  font-size:var(--t-small);letter-spacing:var(--ls-label);text-transform:uppercase;
-  color:var(--green);
-  margin-top:clamp(6px,.7vw,14px);
-}
+.entry .chip{flex:none}
 .entry.gone{display:none}
 
 /* ── podział puli ────────────────────────────────────────────── */
@@ -332,17 +330,12 @@ body::after{
   position:relative;display:flex;align-items:center;min-width:0;overflow:hidden;
   transition:width .95s cubic-bezier(.24,.86,.22,1);
 }
-/* refleks u góry — pasek zaczyna wyglądać jak wypełniona objętość */
-.split>span::before{
-  content:"";position:absolute;left:0;right:0;top:0;height:42%;pointer-events:none;
-  background:linear-gradient(180deg,rgba(255,255,255,.3),transparent);
-}
 .split .sp{
-  background:linear-gradient(178deg,var(--pink-hi),var(--pink) 44%,var(--pink-lo));
+  background:var(--pink);
   justify-content:flex-start;padding-left:var(--split-pad);
 }
 .split .sb{
-  background:linear-gradient(178deg,var(--blue-hi),var(--blue) 44%,var(--blue-lo));
+  background:var(--blue);
   justify-content:flex-end;padding-right:var(--split-pad);
 }
 /* styk dwóch stron — szczelina w kolorze tła, przezroczysta na wylot */
@@ -477,14 +470,6 @@ body::after{
     <section class="entry" id="entry">
       <div class="chip live" id="status"><span class="pip"></span><span id="status-txt">Zakłady otwarte</span></div>
       <div class="chip wait" id="wait"><span class="pip"></span><span id="wait-txt">0 do potwierdzenia</span></div>
-      <div class="cap">Zeskanuj<br>i postaw zakład</div>
-      <div class="qr-frame">
-        <svg viewBox="0 0 37 37" shape-rendering="crispEdges" aria-label="Kod QR do formularza zakładów">
-          <rect width="37" height="37" fill="#F1EDF7"/>
-          <path d="M2 2h7v1h-7zM13 2h1v1h-1zM15 2h2v1h-2zM19 2h2v1h-2zM23 2h2v1h-2zM28 2h7v1h-7zM2 3h1v1h-1zM8 3h1v1h-1zM10 3h2v1h-2zM13 3h1v1h-1zM18 3h1v1h-1zM20 3h1v1h-1zM28 3h1v1h-1zM34 3h1v1h-1zM2 4h1v1h-1zM4 4h3v1h-3zM8 4h1v1h-1zM10 4h1v1h-1zM12 4h1v1h-1zM14 4h1v1h-1zM16 4h2v1h-2zM21 4h6v1h-6zM28 4h1v1h-1zM30 4h3v1h-3zM34 4h1v1h-1zM2 5h1v1h-1zM4 5h3v1h-3zM8 5h1v1h-1zM10 5h3v1h-3zM14 5h1v1h-1zM16 5h3v1h-3zM20 5h4v1h-4zM26 5h1v1h-1zM28 5h1v1h-1zM30 5h3v1h-3zM34 5h1v1h-1zM2 6h1v1h-1zM4 6h3v1h-3zM8 6h1v1h-1zM11 6h2v1h-2zM15 6h4v1h-4zM22 6h1v1h-1zM25 6h1v1h-1zM28 6h1v1h-1zM30 6h3v1h-3zM34 6h1v1h-1zM2 7h1v1h-1zM8 7h1v1h-1zM13 7h5v1h-5zM19 7h1v1h-1zM21 7h1v1h-1zM23 7h2v1h-2zM26 7h1v1h-1zM28 7h1v1h-1zM34 7h1v1h-1zM2 8h7v1h-7zM10 8h1v1h-1zM12 8h1v1h-1zM14 8h1v1h-1zM16 8h1v1h-1zM18 8h1v1h-1zM20 8h1v1h-1zM22 8h1v1h-1zM24 8h1v1h-1zM26 8h1v1h-1zM28 8h7v1h-7zM10 9h2v1h-2zM13 9h2v1h-2zM16 9h3v1h-3zM21 9h2v1h-2zM24 9h1v1h-1zM2 10h1v1h-1zM8 10h1v1h-1zM10 10h1v1h-1zM12 10h4v1h-4zM19 10h1v1h-1zM21 10h1v1h-1zM24 10h1v1h-1zM26 10h3v1h-3zM31 10h3v1h-3zM4 11h1v1h-1zM6 11h1v1h-1zM9 11h3v1h-3zM15 11h3v1h-3zM19 11h7v1h-7zM30 11h3v1h-3zM3 12h2v1h-2zM7 12h2v1h-2zM12 12h2v1h-2zM15 12h3v1h-3zM19 12h1v1h-1zM27 12h1v1h-1zM30 12h1v1h-1zM32 12h2v1h-2zM2 13h1v1h-1zM6 13h2v1h-2zM9 13h1v1h-1zM12 13h1v1h-1zM14 13h2v1h-2zM17 13h6v1h-6zM25 13h1v1h-1zM27 13h1v1h-1zM29 13h5v1h-5zM2 14h1v1h-1zM7 14h4v1h-4zM15 14h1v1h-1zM19 14h1v1h-1zM22 14h1v1h-1zM24 14h1v1h-1zM26 14h1v1h-1zM28 14h2v1h-2zM34 14h1v1h-1zM2 15h2v1h-2zM7 15h1v1h-1zM10 15h1v1h-1zM13 15h1v1h-1zM15 15h1v1h-1zM19 15h2v1h-2zM25 15h1v1h-1zM27 15h3v1h-3zM31 15h1v1h-1zM33 15h2v1h-2zM2 16h2v1h-2zM5 16h4v1h-4zM12 16h1v1h-1zM14 16h5v1h-5zM20 16h1v1h-1zM23 16h2v1h-2zM27 16h4v1h-4zM33 16h1v1h-1zM3 17h1v1h-1zM5 17h2v1h-2zM11 17h1v1h-1zM13 17h1v1h-1zM15 17h1v1h-1zM18 17h1v1h-1zM24 17h2v1h-2zM27 17h1v1h-1zM30 17h3v1h-3zM34 17h1v1h-1zM3 18h2v1h-2zM6 18h1v1h-1zM8 18h3v1h-3zM13 18h1v1h-1zM15 18h1v1h-1zM17 18h1v1h-1zM19 18h1v1h-1zM21 18h1v1h-1zM24 18h4v1h-4zM29 18h2v1h-2zM34 18h1v1h-1zM3 19h1v1h-1zM5 19h1v1h-1zM7 19h1v1h-1zM14 19h2v1h-2zM17 19h1v1h-1zM21 19h3v1h-3zM25 19h1v1h-1zM28 19h1v1h-1zM31 19h2v1h-2zM34 19h1v1h-1zM6 20h1v1h-1zM8 20h1v1h-1zM10 20h2v1h-2zM13 20h1v1h-1zM17 20h5v1h-5zM25 20h2v1h-2zM28 20h2v1h-2zM31 20h2v1h-2zM34 20h1v1h-1zM3 21h2v1h-2zM6 21h2v1h-2zM10 21h1v1h-1zM13 21h1v1h-1zM17 21h1v1h-1zM21 21h2v1h-2zM30 21h5v1h-5zM3 22h1v1h-1zM8 22h3v1h-3zM12 22h6v1h-6zM20 22h1v1h-1zM24 22h3v1h-3zM29 22h3v1h-3zM33 22h1v1h-1zM2 23h1v1h-1zM4 23h1v1h-1zM6 23h2v1h-2zM9 23h2v1h-2zM13 23h1v1h-1zM21 23h1v1h-1zM24 23h2v1h-2zM29 23h4v1h-4zM2 24h1v1h-1zM4 24h1v1h-1zM7 24h4v1h-4zM13 24h1v1h-1zM16 24h1v1h-1zM22 24h3v1h-3zM26 24h5v1h-5zM32 24h2v1h-2zM2 25h1v1h-1zM5 25h1v1h-1zM11 25h1v1h-1zM15 25h1v1h-1zM17 25h2v1h-2zM20 25h1v1h-1zM22 25h1v1h-1zM24 25h1v1h-1zM27 25h1v1h-1zM31 25h4v1h-4zM2 26h3v1h-3zM6 26h4v1h-4zM11 26h3v1h-3zM18 26h1v1h-1zM22 26h1v1h-1zM25 26h7v1h-7zM33 26h2v1h-2zM10 27h1v1h-1zM13 27h1v1h-1zM15 27h10v1h-10zM26 27h1v1h-1zM30 27h1v1h-1zM32 27h1v1h-1zM34 27h1v1h-1zM2 28h7v1h-7zM14 28h2v1h-2zM17 28h3v1h-3zM22 28h2v1h-2zM25 28h2v1h-2zM28 28h1v1h-1zM30 28h1v1h-1zM32 28h2v1h-2zM2 29h1v1h-1zM8 29h1v1h-1zM11 29h2v1h-2zM14 29h1v1h-1zM19 29h2v1h-2zM22 29h1v1h-1zM24 29h3v1h-3zM30 29h4v1h-4zM2 30h1v1h-1zM4 30h3v1h-3zM8 30h1v1h-1zM12 30h1v1h-1zM17 30h2v1h-2zM21 30h1v1h-1zM24 30h1v1h-1zM26 30h6v1h-6zM33 30h2v1h-2zM2 31h1v1h-1zM4 31h3v1h-3zM8 31h1v1h-1zM11 31h1v1h-1zM14 31h3v1h-3zM19 31h4v1h-4zM24 31h2v1h-2zM27 31h1v1h-1zM29 31h6v1h-6zM2 32h1v1h-1zM4 32h3v1h-3zM8 32h1v1h-1zM12 32h1v1h-1zM16 32h2v1h-2zM19 32h4v1h-4zM24 32h1v1h-1zM27 32h1v1h-1zM29 32h2v1h-2zM32 32h3v1h-3zM2 33h1v1h-1zM8 33h1v1h-1zM11 33h1v1h-1zM13 33h2v1h-2zM20 33h1v1h-1zM22 33h1v1h-1zM24 33h1v1h-1zM27 33h6v1h-6zM2 34h7v1h-7zM10 34h2v1h-2zM13 34h2v1h-2zM17 34h3v1h-3zM24 34h6v1h-6zM31 34h1v1h-1zM33 34h1v1h-1z" fill="#120C22"/>
-        </svg>
-      </div>
-      <div class="min">Minimum 10 zł</div>
     </section>
 
     <section class="side b" id="side-b">
@@ -831,14 +816,14 @@ function render(){
   ["p","b"].forEach(s => {
     const r = sum[s] > 0 ? total / sum[s] : 0;
     const el = $("odds-" + s), dr = $("dr-" + s);
-    el.textContent = r > 0 ? "×" + r.toFixed(2).replace(".", ",") : "×—";
+    el.textContent = r > 0 ? "×" + r.toFixed(2) : "×—";
 
     if (primed && was[s] > 0 && Math.abs(r - was[s]) > 0.004){
       const dir = r > was[s] ? "up" : "down";
       el.classList.remove("up","down"); void el.offsetWidth;
       el.classList.add(dir);
       dr.className = "drift on " + dir;
-      dr.textContent = (dir === "up" ? "▲ +" : "▼ ") + (r - was[s]).toFixed(2).replace(".", ",");
+      dr.textContent = (dir === "up" ? "▲ +" : "▼ ") + (r - was[s]).toFixed(2);
       if (s === "p") Snd.blip(dir);
       setTimeout(() => { el.classList.remove(dir); dr.classList.remove("on"); }, 1800);
     }
@@ -908,7 +893,7 @@ function applyReveal(total, sum){
       : "radial-gradient(circle at 50% 40%,#6DBEFF 0%,#0F5FC4 52%,#031C36 100%)";
     $("v-name").textContent = winner === "p" ? "DZIEWCZYNKA" : "CHŁOPIEC";
     $("v-rate").innerHTML = r > 0
-      ? `Kurs <b>×${r.toFixed(2).replace(".", ",")}</b><br>z 10 zł robi się <b>${fmt(r * 10)} zł</b>`
+      ? `Kurs <b>×${r.toFixed(2)}</b><br>z 10 zł robi się <b>${fmt(r * 10)} zł</b>`
       : "Nikt nie trafił.";
     $("v-note").textContent = `Pula ${fmt(total)} zł dzielona proporcjonalnie do wpłat.`;
     v.classList.add("on");
